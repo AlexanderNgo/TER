@@ -1,0 +1,5 @@
+2024-03-06 15:30:00 - INFO - Lancement de l'application
+2024-03-06 15:30:05 - DEBUG - Connexion à la base de données réussie
+2024-03-06 15:30:10 - ERROR - Erreur lors du chargement des données
+2024-03-06 15:30:15 - WARNING - Mémoire faible, veuillez libérer de l'espace
+2024-03-06 15:30:20 - INFO - Données sauvegardées avec succès
