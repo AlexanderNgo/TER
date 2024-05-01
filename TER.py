@@ -150,14 +150,22 @@ dico = dict()
 for concept in concepts :
   for service in services :
     if proba(concept,service,lignes) != 0 : #donc qu'il y a pas d'association entre serviceID et le concept
-      dico[concept] = [service,proba(concept,service,lignes)]
+    #faut vérifier si le concept n'est pas déjà dans le dict pcq on peut pas avoir 2 fois la mm clé
+      if concept not in dico.keys() : 
+        dico[concept] = [service,proba(concept,service,lignes)]
+      else :
+        dico[concept].append(service)
+        dico[concept].append(proba(concept,service,lignes))
 #dico
 
 with open("output.txt","w") as f :
   for key in dico :
-    f.write(key + f"({dico[key][0]},{dico[key][1]})"+ "\n")
-
-dico
+    f.write(key+"(")
+    word = ""
+    for i in range(len(dico[key])) :
+      word += str(dico[key][i])+","
+    word = word[:-1] + ")"
+    f.write(f"{word}\n")
 
 with open("output.txt","r") as f :
   for line in f.readlines() :
