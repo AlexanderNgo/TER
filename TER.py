@@ -106,7 +106,7 @@ for elem in events_list_elems : #pour chaque colonne éléments
           Affecter = True
           list_concepts.insert(j,(data[nb_elem][i][0]))
     if not Affecter :
-     list_concepts.insert(i-1,'NaN')
+     list_concepts.insert(i-1,'NaN') #NaN quand aucune des conditions d'égalité n'a match mais normalement y'en aura pas si les fichiers inputs sont bien faits
   events_copied[elem] = list_concepts #remplace les éléments numérique en élément qualitative
   print(list_concepts)
   nb_elem += 1
@@ -114,3 +114,52 @@ events_copied.head()
 
 #data[0]
 data[nb_elem]
+
+#Trouver les proba associé à chaque concept et sortir un fichier avec Concept(proba(c))
+#proba = nb de fois où le concepts apparait pour le service donné / le nb de fois où le service donnée est exécuté
+
+#crée une liste qui énumere tous les concepts
+concepts = []
+for elem in events_list_elems:
+  for i in range(len(events_copied[elem].values.tolist())) :
+    if events_copied[elem].values.tolist()[i] not in concepts :
+      concepts.append(events_copied[elem].values.tolist()[i])
+
+#crée une liste qui énumere tous les services
+services = list(set(events['ServiceID'].values.tolist()))
+
+df = events_copied.iloc[:,2:]
+lignes = df.values.tolist()
+
+def proba(concept,serviceID,lignes): #on va parcourir ligne par ligne du df, regarder l'association du concept avec le serviceID
+  #compter le nombre de fois où serviceID apparait
+  compteur_serviceID = 0
+  compteur_concept = 0
+  for line in lignes :
+    if serviceID in line :
+      compteur_serviceID +=1
+      if concept in line :
+        compteur_concept +=1
+  return compteur_concept/compteur_serviceID
+
+#proba("Superieur1","S1",lignes)
+
+#Avoir un dictionnaire avec {Concept : [Service,proba]}
+
+dico = dict()
+for concept in concepts :
+  for service in services :
+    if proba(concept,service,lignes) != 0 : #donc qu'il y a pas d'association entre serviceID et le concept
+      dico[concept] = [service,proba(concept,service,lignes)]
+#dico
+
+with open("output.txt","w") as f :
+  for key in dico :
+    f.write(key + f"({dico[key][0]},{dico[key][1]})"+ "\n")
+
+dico
+
+with open("output.txt","r") as f :
+  for line in f.readlines() :
+    print(line)
+
