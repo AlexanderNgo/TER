@@ -1,0 +1,4 @@
+Element1|Element2
+Inferieur1:< 3|Inferieur2:< 3
+Superieur1:> 4|Superieur2:> 4
+Egalite1:= 5|Egalite2:= 5
