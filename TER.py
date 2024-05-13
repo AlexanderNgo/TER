@@ -9,14 +9,30 @@ Original file is located at
 
 import pandas as pd
 
-events = pd.read_table("Log.log",sep = "|")
+#events = pd.read_table("Log.log",sep = "|")
+events = pd.read_table("Test.txt",sep = "|")
 events.head()
 
 events.columns
 
-events['ServiceID'].values.tolist()
+events['Service ID'].values.tolist()
 
-QOS = pd.read_table('QOS.txt',sep = '|')
+#Dans le cas où dans les éléments on n'a pas que des chiffres mais aussi des caractères (par ex 12ms),on supprimera ces caractères
+import re
+events_copied = events.copy()
+last_elems = events_copied.columns.tolist()[3:]
+if(bool(re.search(r'\D',events_copied[last_elems[0]].values.tolist()[0]))): #on regarde dans la premiere colonne des élements si la premiere ligne contient des caract ou non
+  for elem in last_elems :
+    only_numbers = []
+    for element in events_copied[elem].values.tolist():
+      nombre = re.search(r'\d+', element).group()
+      only_numbers.append(nombre)
+    events_copied[elem] = only_numbers
+#events_copied['Response time(TR)'].values.tolist()
+events_copied.head()
+
+#QOS = pd.read_table('QOS.txt',sep = '|')
+QOS = pd.read_table('Test_SLA.txt',sep = '|')
 QOS.head()
 #c = la condition -> Ex : BadRC si RC < 3ms <-> < 3
 
@@ -29,7 +45,7 @@ data = []
 for elem in df_colonnes:
   data_elem = []
   for i in range(len(QOS[elem].values.tolist())) :
-    data_elem.append(QOS[elem].values.tolist()[i].split(':'))
+    data_elem.append(str(QOS[elem].values.tolist()[i]).split(':'))
   data.append(data_elem)
 data
 
@@ -37,9 +53,9 @@ data
 #Remplacer les valeurs quantitative par les valeurs qualitative
 #Ca va redonner la table Log mais pour les elems on aura des val qualitativ a la place
 #chercher cb de colonne Elements dans le log
-nombre = len(events.columns.to_list())-3
-events_list_elems = events.columns.to_list()[3:] #on recup une liste qu'avec les éléments dedans
-events_copied = events.copy()
+nombre = len(events_copied.columns.to_list())-3
+events_list_elems = events_copied.columns.to_list()[3:] #on recup une liste qu'avec les éléments dedans
+events_copied2 = events_copied.copy()
 nb_elem = 0 #variable simule la colonne sur laquelle on est de g à d
 affecter = False
 for elem in events_list_elems : #pour chaque colonne éléments
@@ -49,71 +65,72 @@ for elem in events_list_elems : #pour chaque colonne éléments
   list_valeur_egalite = [] #pour stocker les < <= > >= =
   for i in range(len(data[nb_elem])) :
     print("FOR 3")
-    tmp = data[nb_elem][i][1].split(" ") #donc on split la condition Ex : c = "< 3"
-    print(tmp)
-    #récupère la valeur quantitative Ex : le 3 ici
-    list_valeur_numerique.append(tmp[1])
-    list_valeur_egalite.append(tmp[0])
-  for i in range(len(data[nb_elem])):
+    if len(data[nb_elem][i]) >1 : #peut tomber sur la ligne NaN donc dans ce cas on l'ignore
+      #print(i)
+      #print(data[nb_elem][i][0])
+      tmp = data[nb_elem][i][1].split(" ") #donc on split la condition Ex : c = "< 3" (ne pas oublier l'espace entre l'opérateur et le chiffre)
+      print(tmp)
+      #récupère la valeur quantitative Ex : le 3 ici
+      list_valeur_numerique.append(tmp[1])
+      list_valeur_egalite.append(tmp[0])
+  for i in range(len(list_valeur_egalite)):
     print("FOR 4")
     Affecter = False
     #print(events[elem].values.tolist()[i])
     #print(data[nb_elem][i][0])
     #print(len(list_valeur_numerique))
     print(list_valeur_egalite)
+    print(i)
     if list_valeur_egalite[i] == "=" : #on regarde quel symbol c'est puis selon le symbol en question on va chercher les lignes d'la colonne qui respecte ce symbol (condition)
       print("IF 1")
       for j in range(len(events[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events[elem].values.tolist()[j])
+        print(events_copied[elem].values.tolist()[j])
         print(float(list_valeur_numerique[i]))
-        if events[elem].values.tolist()[j] == float(list_valeur_numerique[i]) :
+        if float(events_copied[elem].values.tolist()[j]) == float(list_valeur_numerique[i]) :
           Affecter = True
           print("IF 1")
           list_concepts.insert(j,(data[nb_elem][i][0]))
     elif list_valeur_egalite[i] == "<=" :
       print("IF 2")
       for j in range(len(events[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events[elem].values.tolist()[j])
+        print(events_copied[elem].values.tolist()[j])
         print(float(list_valeur_numerique[i]))
-        if events[elem].values.tolist()[j] <= float(list_valeur_numerique[i]) :
+        if float(events_copied[elem].values.tolist()[j]) <= float(list_valeur_numerique[i]) :
           Affecter = True
           print("IF 2")
           list_concepts.insert(j,(data[nb_elem][i][0]))
     elif list_valeur_egalite[i] == ">=" :
       print("IF 3")
-      for j in range(len(events[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events[elem].values.tolist()[j])
+      for j in range(len(events_copied[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
+        print(events_copied[elem].values.tolist()[j])
         print(float(list_valeur_numerique[i]))
-        if events[elem].values.tolist()[j] >= float(list_valeur_numerique[i]) :
+        if float(events_copied[elem].values.tolist()[j]) >= float(list_valeur_numerique[i]) :
           Affecter = True
           print("IF 3")
           list_concepts.insert(j,(data[nb_elem][i][0]))
     elif list_valeur_egalite[i] == "<" :
       print("IF 4")
-      for j in range(len(events[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events[elem].values.tolist()[j])
+      for j in range(len(events_copied[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
+        print(events_copied[elem].values.tolist()[j])
         print(float(list_valeur_numerique[i]))
-        if events[elem].values.tolist()[j] < float(list_valeur_numerique[i]) :
+        if float(events_copied[elem].values.tolist()[j]) < float(list_valeur_numerique[i]) :
           Affecter = True
           print("IF 4")
           list_concepts.insert(j,(data[nb_elem][i][0]))
     elif list_valeur_egalite[i] == ">" :
       print("IF 5")
-      for j in range(len(events[elem].values.tolist())) :#la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events[elem].values.tolist()[j])
+      for j in range(len(events_copied[elem].values.tolist())) :#la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
+        print(events_copied[elem].values.tolist()[j])
         print(float(list_valeur_numerique[i]))
-        if events[elem].values.tolist()[j] > float(list_valeur_numerique[i]) :
+        if float(events_copied[elem].values.tolist()[j]) > float(list_valeur_numerique[i]) :
           Affecter = True
           list_concepts.insert(j,(data[nb_elem][i][0]))
     if not Affecter :
      list_concepts.insert(i-1,'NaN') #NaN quand aucune des conditions d'égalité n'a match mais normalement y'en aura pas si les fichiers inputs sont bien faits
-  events_copied[elem] = list_concepts #remplace les éléments numérique en élément qualitative
   print(list_concepts)
+  events_copied2[elem] = list_concepts #remplace les éléments numérique en élément qualitative
   nb_elem += 1
-events_copied.head()
-
-#data[0]
-data[nb_elem]
+events_copied2.head()
 
 #Trouver les proba associé à chaque concept et sortir un fichier avec Concept(proba(c))
 #proba = nb de fois où le concepts apparait pour le service donné / le nb de fois où le service donnée est exécuté
@@ -121,14 +138,14 @@ data[nb_elem]
 #crée une liste qui énumere tous les concepts
 concepts = []
 for elem in events_list_elems:
-  for i in range(len(events_copied[elem].values.tolist())) :
-    if events_copied[elem].values.tolist()[i] not in concepts :
-      concepts.append(events_copied[elem].values.tolist()[i])
+  for i in range(len(events_copied2[elem].values.tolist())) :
+    if events_copied2[elem].values.tolist()[i] not in concepts :
+      concepts.append(events_copied2[elem].values.tolist()[i])
 
 #crée une liste qui énumere tous les services
-services = list(set(events['ServiceID'].values.tolist()))
+services = list(set(events['Service ID'].values.tolist()))
 
-df = events_copied.iloc[:,2:]
+df = events_copied2.iloc[:,2:]
 lignes = df.values.tolist()
 
 def proba(concept,serviceID,lignes): #on va parcourir ligne par ligne du df, regarder l'association du concept avec le serviceID
@@ -151,7 +168,7 @@ for concept in concepts :
   for service in services :
     if proba(concept,service,lignes) != 0 : #donc qu'il y a pas d'association entre serviceID et le concept
     #faut vérifier si le concept n'est pas déjà dans le dict pcq on peut pas avoir 2 fois la mm clé
-      if concept not in dico.keys() : 
+      if concept not in dico.keys() :
         dico[concept] = [service,proba(concept,service,lignes)]
       else :
         dico[concept].append(service)
@@ -166,6 +183,9 @@ with open("output.txt","w") as f :
       word += str(dico[key][i])+","
     word = word[:-1] + ")"
     f.write(f"{word}\n")
+concepts
+
+dico
 
 with open("output.txt","r") as f :
   for line in f.readlines() :
