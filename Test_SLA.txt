@@ -1,0 +1,4 @@
+Response Time(RC)|Ram Consuming(RC)
+GoodTR:< 3|GoodRC:< 5
+MediumTR:>= 4|BadRC:>= 5
+BadTR:>= 7|
