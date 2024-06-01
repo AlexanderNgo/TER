@@ -1,0 +1,8 @@
+BadTR(S1,0.25)
+MediumTR(S1,0.25)
+MediumTR(S2,0.5)
+GoodTR(S1,0.5)
+GoodTR(S2,0.5)
+GoodRC(S1,0.5)
+BadRC(S1,0.5)
+BadRC(S2,1.0)
