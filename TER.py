@@ -8,15 +8,9 @@ Original file is located at
 """
 
 import pandas as pd
-
-#events = pd.read_table("Log.log",sep = "|")
-#events = pd.read_table("Test.txt",sep = "|")
-events = pd.read_table("Test2.txt",sep = "|")
+file = "Test.txt"
+events = pd.read_table(file,sep = "|")
 events.head()
-
-events.columns
-
-events['Service ID'].values.tolist()
 
 #Dans le cas où dans les éléments on n'a pas que des chiffres mais aussi des caractères (par ex 12ms),on supprimera ces caractères
 import re
@@ -32,9 +26,8 @@ if(bool(re.search(r'\D',events_copied[last_elems[0]].values.tolist()[0]))): #on 
 #events_copied['Response time(TR)'].values.tolist()
 events_copied.head()
 
-#QOS = pd.read_table('QOS.txt',sep = '|')
-#QOS = pd.read_table('Test_SLA.txt',sep = '|')
-QOS = pd.read_table('Test2_SLA.txt',sep = '|')
+File_SLA = "Test_SLA.txt"
+QOS = pd.read_table(File_SLA,sep = '|')
 QOS.head()
 #c = la condition -> Ex : BadRC si RC < 3ms <-> < 3
 
@@ -63,101 +56,49 @@ events_copied2 = events_copied.copy()
 nb_elem = 0 #variable simule la colonne sur laquelle on est de g à d
 affecter = False
 for elem in events_list_elems : #pour chaque colonne éléments
-  print("FOR 1")
   list_concepts = [] #les concepts qu'on va ajouter à chaque colonne (remplacera les val numérique)
   list_valeur_numerique = []
   list_valeur_egalite = [] #pour stocker les < <= > >= =
   for i in range(len(data[nb_elem])) :
-    print("FOR 3")
     if len(data[nb_elem][i]) >1 : #peut tomber sur la ligne NaN donc dans ce cas on l'ignore
-      #print(i)
-      #print(data[nb_elem][i][0])
       tmp = data[nb_elem][i][1].split(" ") #donc on split la condition Ex : c = "< 3" (ne pas oublier l'espace entre l'opérateur et le chiffre)
-      print(tmp)
       #récupère la valeur quantitative Ex : le 3 ici
       list_valeur_numerique.append(tmp[1])
       list_valeur_egalite.append(tmp[0])
   for i in range(len(list_valeur_egalite)):
-    print("FOR 4")
     Affecter = False
-    #print(events[elem].values.tolist()[i])
-    #print(data[nb_elem][i][0])
-    #print(len(list_valeur_numerique))
-    print(list_valeur_egalite)
-    print(i)
     if list_valeur_egalite[i] == "=" : #on regarde quel symbol c'est puis selon le symbol en question on va chercher les lignes d'la colonne qui respecte ce symbol (condition)
-      #print("IF 1")
       for j in range(len(events_copied[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events_copied[elem].values.tolist()[j])
-        print(float(list_valeur_numerique[i]))
         if float(events_copied[elem].values.tolist()[j]) == float(list_valeur_numerique[i]) :
-          #Affecter = True
-          print("IF 1")
           list_concepts.insert(j,(data[nb_elem][i][0]))
-          #if len(events_copied[elem].values.tolist()) == len(list_concepts) :
-           # del list_concepts[j+1]
         Affecter = True
     elif list_valeur_egalite[i] == "<=" :
-      #print("IF 2")
-      for j in range(len(events_copied[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events_copied[elem].values.tolist()[j])
-        print(float(list_valeur_numerique[i]))
+      for j in range(len(events_copied[elem].values.tolist())):
         if float(events_copied[elem].values.tolist()[j]) <= float(list_valeur_numerique[i]) :
-          #Affecter = True
-          print("IF 2")
           list_concepts.insert(j,(data[nb_elem][i][0]))
-         # if len(events_copied[elem].values.tolist()) == len(list_concepts) :
-          #  del list_concepts[j+1]
         Affecter = True
     elif list_valeur_egalite[i] == ">=" :
-      #print("IF 3")
-      for j in range(len(events_copied[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events_copied[elem].values.tolist()[j])
-        print(float(list_valeur_numerique[i]))
+      for j in range(len(events_copied[elem].values.tolist())):
         if float(events_copied[elem].values.tolist()[j]) >= float(list_valeur_numerique[i]) :
-          #Affecter = True
-          print("IF 3")
           list_concepts.insert(j,(data[nb_elem][i][0]))
-          #if len(events_copied[elem].values.tolist()) == len(list_concepts) :
-           # del list_concepts[j+1]
         Affecter = True
     elif list_valeur_egalite[i] == "<" :
-      #print("IF 4")
-      for j in range(len(events_copied[elem].values.tolist())): #la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events_copied[elem].values.tolist()[j])
-        print(float(list_valeur_numerique[i]))
+      for j in range(len(events_copied[elem].values.tolist())):
         if float(events_copied[elem].values.tolist()[j]) < float(list_valeur_numerique[i]) :
-          #Affecter = True
-          print("IF 4")
           list_concepts.insert(j,(data[nb_elem][i][0]))
-         # if len(events_copied[elem].values.tolist()) == len(list_concepts) :
-          #  del list_concepts[j+1]
         Affecter = True
     elif list_valeur_egalite[i] == ">" :
-      #print("IF 5")
-      for j in range(len(events_copied[elem].values.tolist())) :#la boucle pour comparer chaque ligne de la colonne selon le symbol d'égalité et la valeur associé
-        print(events_copied[elem].values.tolist()[j])
-        print(float(list_valeur_numerique[i]))
+      for j in range(len(events_copied[elem].values.tolist())) :
         if float(events_copied[elem].values.tolist()[j]) > float(list_valeur_numerique[i]) :
-          #Affecter = True
-          print("IF 5")
           list_concepts.insert(j,(data[nb_elem][i][0]))
-          #if len(events_copied[elem].values.tolist()) == len(list_concepts) :
-           # del list_concepts[j+1]
         Affecter = True
     if not Affecter :
-     print("NON AFFECTER")
      list_concepts.insert(i-1,'NaN') #NaN quand aucune des conditions d'égalité n'a match mais normalement y'en aura pas si les fichiers inputs sont bien faits
     if len(events_copied[elem].values.tolist()) == len(list_concepts) :
       break
-  print(list_concepts)
   events_copied2[elem] = list_concepts #remplace les éléments numérique en élément qualitative
   nb_elem += 1
 events_copied2.head()
-
-L = [1,2,3]
-del L[0]
-L
 
 #Trouver les proba associé à chaque concept et sortir un fichier avec Concept(proba(c))
 #proba = nb de fois où le concepts apparait pour le service donné / le nb de fois où le service donnée est exécuté
@@ -226,4 +167,3 @@ dico
 with open("output.txt","r") as f :
   for line in f.readlines() :
     print(line)
-
